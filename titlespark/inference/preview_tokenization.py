@@ -1,11 +1,30 @@
 import json
 from transformers import T5Tokenizer
 
-def preview_tokenization(dataset_path, model_name="t5-small", max_input_length=512, max_output_length=128, sample_size=5):
+def preview_tokenization(
+    dataset_path, 
+    model_name="t5-small", 
+    max_input_length=512, 
+    max_output_length=128, 
+    sample_size=5
+):
+    """
+    Preview tokenization for a dataset.
+
+    Args:
+        dataset_path (str): Path to the dataset in JSONL format.
+        model_name (str): Name of the model/tokenizer.
+        max_input_length (int): Max length for input sequences.
+        max_output_length (int): Max length for output sequences.
+        sample_size (int): Number of samples to preview.
+
+    Returns:
+        None
+    """
     # Load the tokenizer
     tokenizer = T5Tokenizer.from_pretrained(model_name)
 
-    # Load dataset
+    # Load the dataset
     with open(dataset_path, "r", encoding="utf-8") as f:
         data = [json.loads(line) for line in f]
 
@@ -16,19 +35,17 @@ def preview_tokenization(dataset_path, model_name="t5-small", max_input_length=5
         article = sample["article"]
         title = sample["title"]
 
-        # Tokenize article and title
+        # Tokenize and detokenize for verification
         article_tokens = tokenizer(
             article, truncation=True, padding="max_length", max_length=max_input_length
         )
         title_tokens = tokenizer(
             title, truncation=True, padding="max_length", max_length=max_output_length
         )
-
-        # Detokenize to verify correctness
         detokenized_article = tokenizer.decode(article_tokens["input_ids"], skip_special_tokens=True)
         detokenized_title = tokenizer.decode(title_tokens["input_ids"], skip_special_tokens=True)
 
-        # Show results
+        # Display results
         print(f"Sample {idx + 1}:")
         print("Original Article:", article)
         print("Tokenized Article Input IDs:", article_tokens["input_ids"])
@@ -39,9 +56,5 @@ def preview_tokenization(dataset_path, model_name="t5-small", max_input_length=5
         print("=" * 50)
 
 if __name__ == "__main__":
-    # Path to the dataset
-    dataset_path = "dataset.jsonl"
-    model_name = "google/mt5-small"
-    # Preview tokenization
-    preview_tokenization(dataset_path, model_name=model_name)
-
+    import fire
+    fire.Fire(preview_tokenization)

@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zonetwelve-TitleSparkResearch"
+version = "0.1.0"
+description = "A transformer-based encoder-decoder project for title generation, quantization, and inference."
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+dependencies = [
+    "torch>=1.13.0",
+    "transformers>=4.33.0",
+    "optimum[onnxruntime]>=1.9.0",
+    "scikit-learn>=1.0",
+    "pytest>=7.0.0",
+    "fire>=0.5.0",
+]
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+train_torch = "titlespark.train.train_torch:main"
+infer_torch = "titlespark.inference.infer_torch:main"
+quantize_bitsandbytes = "titlespark.quantization.quantize_bitsandbytes:main

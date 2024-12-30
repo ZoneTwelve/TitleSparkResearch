@@ -1,20 +1,8 @@
 import json
-import os
 import torch
 from torch.utils.data import Dataset, DataLoader
-from torch.nn.parallel import DistributedDataParallel as DDP
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 from sklearn.model_selection import train_test_split
-import torch.distributed as dist
-import torch.multiprocessing as mp
-
-def setup(rank, world_size):
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12355'
-    dist.init_process_group("nccl", rank=rank, world_size=world_size)
-
-def cleanup():
-    dist.destroy_process_group()
 
 class ArticleTitleDataset(Dataset):
     def __init__(self, data, tokenizer, max_input_length=512, max_output_length=128):
@@ -30,6 +18,7 @@ class ArticleTitleDataset(Dataset):
         article = self.data[idx]["article"]
         title = self.data[idx]["title"]
 
+        # Tokenize input (article) and output (title)
         input_encoding = self.tokenizer(
             article, truncation=True, padding="max_length", max_length=self.max_input_length, return_tensors="pt"
         )
@@ -43,15 +32,18 @@ class ArticleTitleDataset(Dataset):
             "labels": target_encoding["input_ids"].squeeze(0),
         }
 
+# Load the dataset
 def load_dataset(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         data = [json.loads(line) for line in f]
     return data
 
+# Train-Test Split
 def split_dataset(data, test_size=0.2):
     train_data, val_data = train_test_split(data, test_size=test_size)
     return train_data, val_data
 
+# Training Function
 def train_model(model, dataloader, optimizer, device):
     model.train()
     total_loss = 0
@@ -72,6 +64,7 @@ def train_model(model, dataloader, optimizer, device):
 
     return total_loss / len(dataloader)
 
+# Validation Function
 def validate_model(model, dataloader, device):
     model.eval()
     total_loss = 0
@@ -88,59 +81,53 @@ def validate_model(model, dataloader, device):
 
     return total_loss / len(dataloader)
 
-def main_worker(rank, world_size):
-    setup(rank, world_size)
-
+# Main Training Script
+def main():
+    # Paths and configurations
     dataset_path = "dataset.jsonl"
     model_name = "google/mt5-small"
-    batch_size = 8
-    epochs = 80
+    batch_size = 24
+    epochs = 24
     learning_rate = 5e-5
     max_input_length = 512
     max_output_length = 128
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    device = torch.device(f"cuda:{rank}")
-
+    print("Load dataset")
+    # Load and split dataset
     data = load_dataset(dataset_path)
     train_data, val_data = split_dataset(data)
 
+    print("Load model")
+    # Load tokenizer and model
     tokenizer = T5Tokenizer.from_pretrained(model_name)
     model = T5ForConditionalGeneration.from_pretrained(model_name).to(device)
-    model = DDP(model, device_ids=[rank])
 
+    print("Prepare datasets")
+    # Prepare datasets and dataloaders
     train_dataset = ArticleTitleDataset(train_data, tokenizer, max_input_length, max_output_length)
     val_dataset = ArticleTitleDataset(val_data, tokenizer, max_input_length, max_output_length)
 
-    train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=world_size, rank=rank)
-    val_sampler = torch.utils.data.distributed.DistributedSampler(val_dataset, num_replicas=world_size, rank=rank)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=batch_size)
 
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, sampler=train_sampler)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, sampler=val_sampler)
-
+    print("Optimizer")
+    # Optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
+    print("Ready to train")
+    # Training loop
     for epoch in range(epochs):
-        train_sampler.set_epoch(epoch)
-
         train_loss = train_model(model, train_dataloader, optimizer, device)
         val_loss = validate_model(model, val_dataloader, device)
 
-        if rank == 0:
-            print(f"Epoch {epoch + 1}/{epochs}")
-            print(f"Train Loss: {train_loss:.4f}")
-            print(f"Validation Loss: {val_loss:.4f}")
+        print(f"Epoch {epoch + 1}/{epochs}")
+        print(f"Train Loss: {train_loss:.4f}")
+        print(f"Validation Loss: {val_loss:.4f}")
 
-    if rank == 0:
-        model.module.save_pretrained("title_generation_model")
-        tokenizer.save_pretrained("title_generation_model")
-
-    cleanup()
-
-def main():
-    world_size = 2
-    os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
-    mp.spawn(main_worker, args=(world_size,), nprocs=world_size, join=True)
+    # Save the trained model
+    model.save_pretrained("title_generation_model")
+    tokenizer.save_pretrained("title_generation_model")
 
 if __name__ == "__main__":
     main()
-
