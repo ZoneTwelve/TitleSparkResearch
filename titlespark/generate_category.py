@@ -1,4 +1,4 @@
-from utils import ChatCompletion, Conversation, Message
+from titlespark.utils import ChatCompletion, Conversation, Message
 import asyncio
 import fire
 import re
@@ -7,76 +7,82 @@ import random
 
 def main(
     model: str = "gpt-3.5-turbo",
-    api_base: str = "https://api.openai.com",
+    api_base: str = "https://api.openai.com/v1",
     temperature: float = 0.7,
-    num_threads: int = 2,
-    topic_file: str = "categories.txt", 
+    num_threads: int = 1,
+    topic_file: str = "categories.txt",
+    output: str = "output.jsonl",
 ):
     api = ChatCompletion(api_base_url=api_base, model=model)
     parameters = {
         "temperature": temperature,
-        "max_tokens": 250,
+        "max_tokens": 500,
         "seed": random.randint(0, 100000),
-        # "use_beam_search": True,
         "top_p": 0.98,
         "top_k": 5,
     }
 
-    # Check topic_file exist
+    # Load categories from existing file
     try:
-        with open(topic_file, "r") as file:
-            topics = file.read().splitlines()
+        with open("categories.jsonl", "r") as file:
+            lines = file.readlines()
+            all_categories = [json.loads(line)["category"] for line in lines]
     except FileNotFoundError:
-        topics = ["human activity"]
-        print(f"File {topic_file} not found.")
+        print("File categories.jsonl not found.")
         return
 
-    helpful_assistant = Message("system", "You follow the user's formatting requirements to the letter.")
-    for topic in topics:
-        conversation = Conversation(
-            [
-                helpful_assistant,
-                Message("user", f"以下列格式產生 10 個類別 <name>[category]</name> 禁止輸出 '[category]' 字串 並且必須與 {topic} 有關，只回覆繁體中文。"),
-            ]
+    # Shuffle and sample categories
+    random.shuffle(all_categories)
+    sample_categories = all_categories[:3]  # Sample 3 categories for this example
+
+    helpful_assistant = Message("system", "Ensure that all outputs strictly follow the user's requested format.")
+
+    # Generate article based on sampled categories
+    selected_categories = ", ".join(sample_categories)
+    conversation = Conversation([
+        helpful_assistant,
+        Message("user", f"請生成一篇與以下主題相關的文章：{selected_categories}，文章需使用繁體中文，並且以 `<content>[article]</content>` 格式輸出文章。"),
+    ])
+    print(conversation.__str__(format="<{role}>: {content}"))
+
+    # Retrieve article from API
+    article_response = asyncio.run(
+        api.chat_completion(
+            messages=conversation,
+            **parameters
         )
-        print(conversation.__str__(format="<{role}>: {content}"))
-        # Retrieve responses from API
-        responses = asyncio.run(
-            api.chat_completion(
-                messages=conversation, 
-                **parameters
-            )
+    )
+
+    # Extract the article content using regex
+    article_pattern = r"<content>(.*?)</content>"
+    article_match = re.search(article_pattern, article_response[0])
+    article = article_match.group(1).strip() if article_match else ""
+
+    # Generate a title for the article
+    conversation.messages.append(Message("user", "根據上述文章內容生成一個適當的標題，需為繁體中文標題並以 `<name>[title]</name>` 格式輸出標題。"))
+    title_response = asyncio.run(
+        api.chat_completion(
+            messages=conversation,
+            **parameters
         )
+    )
 
-        # Define the regex pattern to capture category content between <category> and </category>
-        # pattern = r"<category>(.*?)</category>"
-        pattern = r"<name>(.*?)</name>"
+    # Extract the title content using regex
+    title_pattern = r"<name>(.*?)</name>"
+    title_match = re.search(title_pattern, title_response[0])
+    title = title_match.group(1).strip() if title_match else ""
 
-        # Initialize a list to hold all categories
-        all_categories = []
+    # Save the result to a JSON lines file
+    result = {
+        "categories": sample_categories,
+        "article": f"<content>{article}</content>",
+        "title": f"<name>{title}</name>",
+    }
 
-        # Loop through each response and extract categories
-        for response in responses:
-            print(f"Response: {response}")
-            categories = re.findall(pattern, response)
-            all_categories.extend(categories)  # Flatten the categories into one list
+    with open(output, "a", encoding="utf-8") as file:
+        file.write(json.dumps(result, ensure_ascii=False) + "\n")
 
-        # Print all extracted categories
-        print(all_categories)
-
-        # Append the categories to the json lines file, checking for duplicates
-        with open("categories.jsonl", "a+") as file:
-            file.seek(0)
-            lines = file.readlines()
-            existing_categories = set()
-            for line in lines:
-                existing_categories.add(json.loads(line)["category"])
-
-            # Write unique categories to the file
-            for category in all_categories:
-                if category not in existing_categories:
-                    file.write(json.dumps({"category": category}, ensure_ascii=False) + "\n")
-                    print(f"Added category: {category} to categories.jsonl")
+    print(f"Generated article and title saved: {result}")
 
 if __name__ == "__main__":
     fire.Fire(main)

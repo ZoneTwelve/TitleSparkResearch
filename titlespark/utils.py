@@ -33,7 +33,7 @@ class Conversation:
         return "\n".join(msg.__str__(format) for msg in self.messages)
 
 class ChatCompletion:
-    def __init__(self, api_base_url="https://api.openai.com", model="gpt-3.5-turbo"):
+    def __init__(self, api_base_url="https://api.openai.com/v1", model="gpt-3.5-turbo"):
         self.api_base_url = api_base_url
         self.model = model
 
@@ -52,7 +52,7 @@ class ChatCompletion:
         }
 
         try:
-            async with session.post(f"{self.api_base_url}/v1/chat/completions", json=payload) as response:
+            async with session.post(f"{self.api_base_url}/chat/completions", json=payload) as response:
                 if response.status == 200:
                     result = await response.json()
                     return result['choices'][0]['message']['content']
@@ -79,9 +79,14 @@ class ChatCompletion:
                 conversations = messages
             else:
                 raise ValueError("Invalid message or conversation format")
-
+        headers = {
+            "Authorization": f"Bearer {API_KEY}",
+        }
         # Create an aiohttp session
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+            headers=headers,
+            connector=aiohttp.TCPConnector(verify_ssl=False), # TODO: support additonal parameters to set this value
+        ) as session:
             tasks = [asyncio.ensure_future(self.send_openai_request(session, messages=conversation, **kwargs)) for conversation in conversations]
 
             # Run tasks in parallel
@@ -90,7 +95,7 @@ class ChatCompletion:
 
 def main(
     model: str = "gpt-3.5-turbo",
-    api_base: str = "https://api.openai.com",
+    api_base: str = "https://api.openai.com/v1",
     temperature: float = 0.7,
     num_threads: int = 2,
 ):
