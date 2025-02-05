@@ -5,6 +5,7 @@ import fire
 from typing import Union, List
 
 API_KEY = os.getenv("OPENAI_API_KEY", "your-api-key")
+PROXY = os.getenv("PROXY", None)
 
 class Message:
     def __init__(self, role: str, content: str):
@@ -52,7 +53,7 @@ class ChatCompletion:
         }
 
         try:
-            async with session.post(f"{self.api_base_url}/chat/completions", json=payload) as response:
+            async with session.post(f"{self.api_base_url}/chat/completions", json=payload, proxy=PROXY) as response:
                 if response.status == 200:
                     result = await response.json()
                     return result['choices'][0]['message']['content']

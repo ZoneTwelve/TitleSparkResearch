@@ -6,7 +6,7 @@ import json
 import random
 
 def main(
-    model: str = "gpt-3.5-turbo",
+    model: str = "gpt3.5-turbo",
     api_base: str = "https://api.openai.com/v1",
     temperature: float = 0.7,
     num_threads: int = 1,
@@ -17,7 +17,7 @@ def main(
     parameters = {
         "temperature": temperature,
         "max_tokens": 500,
-        "seed": random.randint(0, 100000),
+        #"seed": random.randint(0, 100000),
         "top_p": 0.98,
         "top_k": 5,
     }
@@ -52,7 +52,7 @@ def main(
             **parameters
         )
     )
-
+    print(article_response)
     # Extract the article content using regex
     article_pattern = r"<content>(.*?)</content>"
     article_match = re.search(article_pattern, article_response[0])

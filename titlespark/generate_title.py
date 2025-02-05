@@ -17,7 +17,7 @@ def main(
     parameters = {
         "temperature": temperature,
         "max_tokens": 250,
-        "seed": random.randint(0, 100000),
+        #"seed": random.randint(0, 100000),
         "top_p": 0.98,
         "top_k": 5,
     }
