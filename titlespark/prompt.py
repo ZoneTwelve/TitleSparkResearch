@@ -1,5 +1,6 @@
 
-artile_prompts = {
+languages = ["Arabic","Bulgarian","Chinese (simplified)","Chinese (traditional)","Czech","Danish","Dutch","English (American)","English (British)","Estonian","Finnish","French","German","Greek","Hungarian","Indonesian","Italian","Japanese","Korean","Latvian","Lithuanian","Norwegian (bokmål)","Polish","Portuguese","Portuguese (Brazilian)","Romanian","Russian","Slovak","Slovenian","Spanish","Swedish","Turkish","Ukrainian"]
+artile_prompts_v1 = {
     "Chinese (traditional)": '請使用並僅限 {LANGUAGE} 來產生文章，並以 `{PROMPT}` 格式輸出，如果您提供非法格式，您將會受到懲罰。',
     "English (American)": 'Please use and limit {LANGUAGE} to generate a post and output it in `{PROMPT}` format, if you provide illegal format, you will be penalized.',
     "Spanish": 'Por favor, utilice y restrinja {LANGUAGE} para generar artículos y darles salida en formato `{PROMPT}`, será penalizado si proporciona formatos ilegales.',
@@ -33,4 +34,41 @@ artile_prompts = {
     "Swedish": 'Vänligen använd och begränsa {LANGUAGE} för att generera artiklar och mata ut dem i formatet `{PROMPT}`, du kommer att straffas om du tillhandahåller olagliga format.',
     "Turkish": 'Lütfen makale oluşturmak ve `{PROMPT}` formatında çıktı almak için {LANGUAGE} kullanın ve kısıtlayın, yasadışı formatlar sağlarsanız cezalandırılırsınız.',
     "Ukrainian": 'Будь ласка, використовуйте і обмежуйте {LANGUAGE} для створення статей і виводьте їх у форматі `{PROMPT}`, ви будете покарані, якщо надасте нелегальні формати.',
+}
+
+
+artile_prompts_v2 = {
+    "Chinese (traditional)": '請使用且僅使用 {LANGUAGE} 來產生文章，並輸出為 `{PROMPT}` 格式，正確的格式將會獲得獎勵。',
+    "English (American)": 'Please use and only {LANGUAGE} to generate the article and output it in `{PROMPT}` format, you will be rewarded for correct formatting.',
+    "Spanish": 'Por favor, utilice y sólo {LANGUAGE} para generar el artículo y darle salida en formato `{PROMPT}`, se le recompensará por el formato correcto.',
+    "Japanese": '投稿を生成して `{PROMPT}` フォーマットでエクスポートするには {LANGUAGE} だけを使用してください。',
+    "Korean": '글을 생성할 때 {LANGUAGE}만 사용하고 “{PROMPT}” 형식으로 출력하면 올바른 형식이 보상됩니다.',
+    "French": 'Veuillez utiliser et uniquement utiliser {LANGUAGE} pour générer des messages et les exporter au format `{PROMPT}`, un formatage correct sera récompensé.',
+    "German": 'Bitte verwenden Sie ausschließlich {LANGUAGE}, um Beiträge zu erstellen und sie im Format `{PROMPT}` zu exportieren, korrekte Formatierung wird belohnt.',
+    "Italian": 'Si prega di utilizzare solo e soltanto {LANGUAGE} per generare messaggi ed esportarli nel formato `{PROMPT}`, la formattazione corretta sarà premiata.',
+    "Russian": 'Пожалуйста, используйте и только {LANGUAGE} для создания статьи и вывода ее в формате `{PROMPT}`, вы будете вознаграждены за правильное форматирование.',
+    "Arabic": 'يُرجى استخدام {LANGUAGE} فقط لإنشاء المقال وإخراجه بتنسيق ”{PROMPT}“، وستتم مكافأتك على التنسيق الصحيح.',
+    "Bulgarian": 'Моля, използвайте само и единствено {LANGUAGE}, за да генерирате статията и да я изведете във формат `{PROMPT}`, като ще бъдете възнаградени за правилно форматиране.',
+    "Chinese (simplified)": '请使用且仅使用 {LANGUAGE} 生成文章，并以“{PROMPT}”格式输出，格式正确者将获得奖励。',
+    "Czech": 'Pro generování příspěvků a jejich export ve formátu `{PROMPT}` používejte prosím pouze {LANGUAGE}, správné formátování bude odměněno.',
+    "Danish": 'Brug venligst og kun brug {LANGUAGE} til at generere indlæg og eksporter dem i `{PROMPT}`-format, korrekt formatering vil blive belønnet.',
+    "Dutch": 'Gebruik en alleen {LANGUAGE} om berichten te genereren en exporteer ze in `{PROMPT}` formaat, correcte opmaak wordt beloond.',
+    "English (British)": 'Please use and only use {LANGUAGE} to generate posts and export them in `{PROMPT}` format, correct formatting will be rewarded.',
+    "Estonian": 'Palun kasutage ja ainult kasutage {LANGUAGE}, et genereerida postitusi ja eksportida need `{PROMPT}` formaadis, korrektset vormistust premeeritakse.',
+    "Finnish": 'Käytä vain ja ainoastaan {LANGUAGE}-kieltä luodaksesi viestejä ja viedäksesi ne `{PROMPT}`-muodossa, oikeasta muotoilusta palkitaan.',
+    "Greek": 'Παρακαλούμε χρησιμοποιήστε και μόνο την {LANGUAGE} για να δημιουργήσετε αναρτήσεις και να τις εξάγετε σε μορφή `{PROMPT}`, η σωστή μορφοποίηση θα ανταμειφθεί.',
+    "Hungarian": 'Kérjük, használja és csakis használja a {LANGUAGE}-t a hozzászólások létrehozásához, és exportálja azokat `{PROMPT}` formátumban, a helyes formázást jutalmazni fogjuk.',
+    "Indonesian": 'Harap gunakan dan hanya gunakan {LANGUAGE} untuk membuat postingan dan mengekspornya dalam format `{PROMPT}`, format yang benar akan dihargai.',
+    "Latvian": 'Lūdzu, izmantojiet tikai un vienīgi {LANGUAGE}, lai ģenerētu rakstu un izvadītu to `{PROMPT}` formātā, par pareizu formatēšanu jūs tiksiet atalgoti.',
+    "Lithuanian": 'Prašome naudoti tik {LANGUAGE}, kad sugeneruotumėte straipsnį ir išvestumėte jį `{PROMPT}` formatu, už teisingą formatavimą būsite apdovanoti.',
+    "Norwegian (bokmål)": 'Vennligst bruk kun {LANGUAGE} for å generere artikkelen og skriv den ut i `{PROMPT}`-format, og du vil bli belønnet for korrekt formatering.',
+    "Polish": 'Użyj tylko {LANGUAGE}, aby wygenerować artykuł i wyślij go w formacie `{PROMPT}`, zostaniesz nagrodzony za poprawne formatowanie.',
+    "Portuguese": 'Por favor, use apenas {LANGUAGE} para gerar o artigo e produzi-lo no formato `{PROMPT}`, será recompensado pela formatação correta.',
+    "Portuguese (Brazilian)": 'Use apenas {LANGUAGE} para gerar o artigo e produzi-lo no formato `{PROMPT}`; você será recompensado pela formatação correta.',
+    "Romanian": 'Vă rugăm să folosiți și numai {LANGUAGE} pentru a genera articolul și să îl scoateți în formatul `{PROMPT}`, veți fi recompensat pentru formatarea corectă.',
+    "Slovak": 'Na vygenerovanie článku a jeho výstup vo formáte `{PROMPT}` použite, prosím, iba {LANGUAGE}, za správne formátovanie budete odmenení.',
+    "Slovenian": 'Za ustvarjanje članka in izpis v obliki `{PROMPT}` uporabite samo {LANGUAGE}, za pravilno oblikovanje boste nagrajeni.',
+    "Swedish": 'Använd endast {LANGUAGE} för att generera artikeln och mata ut den i formatet `{PROMPT}`, du kommer att belönas för korrekt formatering.',
+    "Turkish": 'Lütfen makaleyi oluşturmak için sadece {LANGUAGE} kullanın ve `{PROMPT}` formatında çıktı alın, doğru biçimlendirme için ödüllendirileceksiniz.',
+    "Ukrainian": 'Будь ласка, використовуйте тільки {LANGUAGE} для створення статті і виводьте її у форматі `{PROMPT}`, ви будете винагороджені за правильне форматування.',
 }

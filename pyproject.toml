@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "titlespark"
+version = "0.1.0"  # Replace with your actual version
+description = "A short description of your project."
+readme = "README.md"  # If you have a README
+authors = [{ name = "ZoneTwelve" }]
+license = { file = "LICENSE" } # If you have a LICENSE file. Use SPDX identifier if possible
+classifiers = [
+    "Development Status :: 3 - Alpha",  # Or other appropriate status
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License", # Example, change if needed
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["titles", "spark", "keywords", "example"] # Add relevant keywords
+dependencies = [
+]
+requires-python = ">=3.7" # Minimum Python version
+
+[project.urls]
+"Homepage" = "https://github.com/ZoneTwelve/titlespark" # Replace with your repo URL
+"Bug Tracker" = "https://github.com/ZoneTwelve/titlespark/issues"
+
+[project.scripts]
+titlespark = "titlespark.cli:main" # If you have a command-line interface
+
+[tool.setuptools]
+packages = ["titlespark"] # Automatically find packages within the titlespark directory
+include-package-data = true # Include non-python files in your package
+
+[tool.ruff]
+# Enable Pyflakes, pycodestyle (E & W), and isort
+select = ["E", "W", "F", "I"]
+ignore = [] # Example: ["E501"]
+line-length = 88 # Example: set line length
+src = ["titlespark", "tests"] # Add your source directories
+target-version = "py311" # Target python version
+# Allow fix for autofixable rules
+fix = true
+# Allow unsafe fixes
+unsafe-fixes = true
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_configs = true
+show_column_numbers = true
+show_error_codes = true
+implicit_reexport = false
+pretty = true

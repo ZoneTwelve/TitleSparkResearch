@@ -1,5 +1,5 @@
 from titlespark.utils import ChatCompletion, Conversation, Message
-from titlespark.prompt import artile_prompts
+from titlespark.prompt import artile_prompts_v2 as artile_prompts
 import asyncio
 import fire
 import re
@@ -10,8 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def generate_article(api, parameters, language, sample_categories, formatted_prompt):
-    print(language)
-    print(sample_categories)
+    print("Generating article for", language)
     article_prompt = artile_prompts[language]
     prompt = article_prompt.format(LANGUAGE=language, PROMPT=formatted_prompt) + f"\nReference categories: {', '.join(sample_categories)}"
     conversation = Conversation([
@@ -44,6 +43,7 @@ def generate_article(api, parameters, language, sample_categories, formatted_pro
         "categories": sample_categories,
         "article": article,
         "language": language,
+        "validate": True if article_match else False
     }
 
 def main(
@@ -76,9 +76,11 @@ def main(
     # Shuffle and sample categories
     print("Sampling categories...")
     random.shuffle(all_categories)
-    probability = [0.4, 0.2, 0.3, 0.1, 0.05]
-    sample_categories = random.choices(all_categories[:5], weights=probability, k=random.randint(1, 5))
-    
+    # deduplicate categories
+    all_categories = list(set(all_categories))
+    random_length = random.randint(1, 5)
+    sample_categories = all_categories[:random_length]
+    print("Sampled categories:", sample_categories)
     # Multithreading to process multiple languages in parallel
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
@@ -92,6 +94,8 @@ def main(
             results.append(res)
     
     # Write all results to file after threads complete
+
+    print("Writing results to file...")
     with open(output, "a", encoding="utf-8") as file:
         for result in results:
             file.write(json.dumps(result, ensure_ascii=False) + "\n")
